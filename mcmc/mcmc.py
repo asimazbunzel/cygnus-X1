@@ -32,8 +32,7 @@ fh.setLevel(logging.DEBUG)
 ch = logging.StreamHandler()
 ch.setLevel(logging.ERROR)
 # create formatter and add it to the handlers
-formatter = logging.Formatter(
-    "%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 ch.setFormatter(formatter)
 fh.setFormatter(formatter)
 # add the handlers to logger
@@ -121,7 +120,7 @@ def main() -> None:
     for k, el in enumerate(initial):
         logging.debug(f"walker {k}: {el}")
 
-    return 
+    return
 
     # need a numpy array to start emcee
     initial = np.array(initial)
@@ -138,17 +137,16 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    
     logger.info("********************************************************")
     logger.info("         Markov Chain Monte Carlo calculator            ")
     logger.info("********************************************************")
-    
+
     # time it
     _startTime = time.time()
 
     main()
-    
+
     # time it
     _endTime = time.time()
-    
+
     logger.info(f"[-- manager uptime: {_endTime - _startTime:.2f} sec --]")
