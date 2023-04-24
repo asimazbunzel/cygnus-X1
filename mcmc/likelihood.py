@@ -5,10 +5,13 @@ import poskiorb
 
 import priors
 
-M_BH = 20
-PORB = 5.6
-M_2 = 40e0
-M_2_err = 7e0
+# parameters of Cygnus X-1
+M_BH = 20  # Msun
+M_2 = 40e0  # Msun
+PORB = 5.6  # days
+VSYS = 10.7  # km/s
+ECC = 0.019
+INC = 23  # deg
 
 DBG = False
 
@@ -28,10 +31,6 @@ def log_likelihood(args):
     # angles
     if theta < 0 or theta >= np.pi or phi < 0 or phi >= 2 * np.pi:
         return -np.inf
-
-    # prior on companion mass
-    # if m2 < 20 or m2 > 6:
-    #     return -np.inf
 
     # convert Period to Separation
     a_pre = poskiorb.utils.P_to_a(period=porb_pre, m1=m1_pre, m2=m2)
@@ -72,23 +71,16 @@ def log_likelihood(args):
     # inclination to deg.
     inc = np.arccos(cos_i) * 180 / np.pi
 
-    # if inc < 10 or inc > 50:
-    #     return -np.inf
-
-    # prior on v_sys
-    # if v_sys < 0 or v_sys > 40:
-    #     return -np.inf
-
     # we dont want unbounded binaries
     if e < 0 or e >= 1 or a_post < 0:
         return -np.inf
 
     # compute priors to update likelihood
-    log_L = priors.lg_norm_prior_Porb(x=P_post, porb=PORB)
-    log_L += priors.lg_unif_prior_ecc(x=e)
-    log_L += priors.lg_norm_prior_M2(x=m2, m2=M_2)
-    log_L += priors.lg_unif_prior_vsys(x=v_sys)
-    log_L += priors.lg_unif_prior_inc(x=inc)
+    log_L = priors.lg_prior_Porb(x=P_post, porb=PORB)
+    log_L += priors.lg_prior_ecc(x=e, ecc=ECC)
+    log_L += priors.lg_prior_M2(x=m2, m2=M_2)
+    log_L += priors.lg_prior_vsys(x=v_sys, vsys=VSYS)
+    log_L += priors.lg_prior_inc(x=inc, inc=INC)
 
     # prior on theta
     log_L += np.log(np.sin(theta))
