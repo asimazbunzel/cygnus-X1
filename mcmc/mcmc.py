@@ -120,8 +120,6 @@ def main() -> None:
     for k, el in enumerate(initial):
         logging.debug(f"walker {k}: {el}")
 
-    return
-
     # need a numpy array to start emcee
     initial = np.array(initial)
 
