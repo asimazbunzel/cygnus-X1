@@ -1,0 +1,37 @@
+# Configuration file for MCMC exploration of asymmetric kicks on Cygnus X-1
+
+# Markov chain Montecarlo controls
+MCMC:
+
+  # walkers: number of walkers
+  walkers: 600
+
+  # dimension: dimension of the space to explore
+  dimension: 6
+
+  # steps: number of steps to perform by the MCMC
+  steps: 50000
+  
+  # burn: how many steps to remove for MCMC chain
+  burn: 2000
+
+  # use_random_uniform_walkers: flag to control the initial population of walkers
+  use_random_uniform_walkers: True
+
+  # show progress bar
+  progress_bar: True
+
+  # Initial parameter space around which random walkers will start
+  initialGuess:
+    porb_preSN : 4.0
+    m1_preSN   : 25.0
+    m2         : 40.0
+    w          : 10.0
+    theta      : 1.5707963267948966  # pi / 2
+    phi        : 1.5707963267948966  # pi / 2
+
+# Input/Output controls
+IO:
+
+  # filename: name of file where results from MCMC will be saved
+  filename: "cygnusx1.h5"
