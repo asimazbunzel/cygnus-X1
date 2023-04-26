@@ -1,96 +1,208 @@
+"""priors for different stellar parameters
+"""
+
 from typing import List, Union
 
 import numpy as np
 import scipy.stats as stats
 
-M_BH = 20
-PORB = 5.6
-ECC = 0.018
-M_2 = 40e0
-M_2_err = 7e0
 
-
-def lg_prior_Porb(
-    x: Union[float, List[float]],
+def lg_prior_porb(
     porb: Union[float, List[float]],
-    distribution: str = "gaussian",
+    porb_fixed: float,
+    distribution: str = "",
+    **kwargs,
 ) -> Union[float, List[float]]:
-    """Prior distribution on orbital period (Porb) in logarithm"""
+    """Prior distribution on orbital period (Porb) in logarithm
 
-    if distribution == "gaussian":
-        return stats.norm.logpdf(x, loc=porb, scale=0.20 * porb) - stats.norm.logpdf(
-            PORB, loc=porb, scale=0.20 * porb
-        )
-    else:
-        sys.exit(
-            "need to modify `lg_prior_Porb` before running this prior distribution"
-        )
+    Parameters
+    ----------
+    porb : `Union[float, List[float]]`
+        Orbital period in days where log(PDF) will be computed
+
+    porb_fixed : `float`
+        Orbital period value of Cygnus X-1 in days
+
+    distribution : `str`
+        Name of statistical distribution to be used to compute log(PDF). Accepts any value from
+        `scipy.stats`
+
+    kwargs: `dict`
+        Valid arguments for distributions found in `scipy.stats`. E.g., `loc`, `scale`
+
+    Returns
+    -------
+    logpdf: `float`
+        Result of the difference: log(PDF_porb) - log(PDF_porb_fixed)
+    """
+
+    # load chosen distribution
+    try:
+        distro = stats.__dict__.get(distribution)
+    except Exception as e:
+        raise e
+
+    # needed values
+    loc = kwargs.get("loc")
+    scale = kwargs.get("scale")
+    # in case uniform, range is [PORB - PORB_ERR , PORB + PORB_ERR]
+    if distribution == "uniform":
+        loc = kwargs["loc"] - kwargs["scale"]
+        scale = kwargs["loc"] + kwargs["scale"]
+
+    if loc < 0:
+        loc = 0
+
+    return distro.logpdf(porb, loc=loc, scale=scale) - distro.logpdf(
+        porb_fixed, loc=loc, scale=scale
+    )
 
 
 def lg_prior_ecc(
-    x: Union[float, List[float]],
     ecc: Union[float, List[float]],
-    distribution: str = "uniform",
+    ecc_fixed: float,
+    distribution: str = "",
+    **kwargs,
 ) -> Union[float, List[float]]:
     """Prior distribution on eccentricity in logarithm"""
 
+    # load chosen distribution
+    try:
+        distro = stats.__dict__.get(distribution)
+    except Exception as e:
+        raise e
+
+    # needed values
+    loc = kwargs.get("loc")
+    scale = kwargs.get("scale")
+    # in case uniform, range is [ECC - ECC_ERR , ECC + ECC_ERR]
     if distribution == "uniform":
-        return stats.uniform.logpdf(x, loc=0, scale=0.2) - stats.uniform.logpdf(
-            0.1, loc=0, scale=0.2
-        )
-    else:
-        sys.exit("need to modify `lg_prior_ecc` before running this prior distribution")
+        loc = kwargs["loc"] - kwargs["scale"]
+        scale = kwargs["loc"] + kwargs["scale"]
+
+    if loc < 0:
+        loc = 0
+
+    return distro.logpdf(ecc, loc=loc, scale=scale) - distro.logpdf(
+        ecc_fixed, loc=loc, scale=scale
+    )
 
 
-def lg_prior_M2(
-    x: Union[float, List[float]],
+def lg_prior_m2(
     m2: Union[float, List[float]],
-    distribution: str = "gaussian",
+    m2_fixed: float,
+    distribution: str = "",
+    **kwargs,
 ) -> Union[float, List[float]]:
     """Prior distribution on companion, non-degenerate, star (M2) in logarithm"""
 
-    if distribution == "gaussian":
-        return stats.norm.logpdf(x, loc=m2, scale=0.20 * m2) - stats.norm.logpdf(
-            M_2, loc=m2, scale=0.20 * m2
-        )
-    else:
-        sys.exit("need to modify `lg_prior_M2` before running this prior distribution")
+    # load chosen distribution
+    try:
+        distro = stats.__dict__.get(distribution)
+    except Exception as e:
+        raise e
+
+    # needed values
+    loc = kwargs.get("loc")
+    scale = kwargs.get("scale")
+    # in case uniform, range is [M_2 - M_2_ERR , M_2 + M_2_ERR]
+    if distribution == "uniform":
+        loc = kwargs["loc"] - kwargs["scale"]
+        scale = kwargs["loc"] + kwargs["scale"]
+
+    if loc < 0:
+        loc = 0
+
+    return distro.logpdf(m2, loc=loc, scale=scale) - distro.logpdf(
+        m2_fixed, loc=loc, scale=scale
+    )
 
 
-def lg_prior_BH(
-    x: Union[float, List[float]], mbh: Union[float, List[float]], distribution: str = ""
+def lg_prior_mbh(
+    mbh: Union[float, List[float]],
+    mbh_fixed: float,
+    distribution: str = "",
+    **kwargs,
 ) -> Union[float, List[float]]:
     """Prior distribution on black hole (MBH) in logarithm"""
-    return None
+
+    # load chosen distribution
+    try:
+        distro = stats.__dict__.get(distribution)
+    except Exception as e:
+        raise e
+
+    # needed values
+    loc = kwargs.get("loc")
+    scale = kwargs.get("scale")
+    # in case uniform, range is [M_BH - M_BH_ERR , M_BH + M_BH_ERR]
+    if distribution == "uniform":
+        loc = kwargs["loc"] - kwargs["scale"]
+        scale = kwargs["loc"] + kwargs["scale"]
+
+    if loc < 0:
+        loc = 0
+
+    return distro.logpdf(mbh, loc=loc, scale=scale) - distro.logpdf(
+        mbh_fixed, loc=loc, scale=scale
+    )
 
 
 def lg_prior_inc(
-    x: Union[float, List[float]],
     inc: Union[float, List[float]],
-    distribution: str = "uniform",
+    inc_fixed: float,
+    distribution: str = "",
+    **kwargs,
 ) -> Union[float, List[float]]:
     """Prior distribution on inclination of binary orbit before and after asymmetric kick"""
 
+    # load chosen distribution
+    try:
+        distro = stats.__dict__.get(distribution)
+    except Exception as e:
+        raise e
+
+    # needed values
+    loc = kwargs.get("loc")
+    scale = kwargs.get("scale")
+    # in case uniform, range is [INC - INC_ERR , INC + INC_ERR]
     if distribution == "uniform":
-        return stats.uniform.logpdf(x, loc=10, scale=30) - stats.norm.logpdf(
-            23, loc=10, scale=30
-        )
-    else:
-        sys.exit("need to modify `lg_prior_inc` before running this prior distribution")
+        loc = kwargs["loc"] - kwargs["scale"]
+        scale = kwargs["loc"] + kwargs["scale"]
+
+    if loc < 0:
+        loc = 0
+
+    return distro.logpdf(inc, loc=loc, scale=scale) - distro.logpdf(
+        inc_fixed, loc=loc, scale=scale
+    )
 
 
 def lg_prior_vsys(
-    x: Union[float, List[float]],
     vsys: Union[float, List[float]],
-    distribution: str = "uniform",
+    vsys_fixed: float,
+    distribution: str = "",
+    **kwargs,
 ) -> Union[float, List[float]]:
     """Uniform distribution prior on systemic velocity (v_sys) in logarithm"""
 
+    # load chosen distribution
+    try:
+        distro = stats.__dict__.get(distribution)
+    except Exception as e:
+        raise e
+
+    # needed values
+    loc = kwargs.get("loc")
+    scale = kwargs.get("scale")
+    # in case uniform, range is [VSYS - VSYS_ERR , VSYS + VSYS_ERR]
     if distribution == "uniform":
-        return stats.uniform.logpdf(x, loc=5, scale=35) - stats.uniform.logpdf(
-            15, loc=5, scale=35
-        )
-    else:
-        sys.exit(
-            "need to modify `lg_prior_vsys` before running this prior distribution"
-        )
+        loc = kwargs["loc"] - kwargs["scale"]
+        scale = kwargs["loc"] + kwargs["scale"]
+
+    if loc < 0:
+        loc = 0
+
+    return distro.logpdf(vsys, loc=loc, scale=scale) - distro.logpdf(
+        vsys_fixed, loc=loc, scale=scale
+    )
