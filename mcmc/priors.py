@@ -1,7 +1,7 @@
-"""priors for different stellar parameters
+"""Prior distributions for different stellar parameters
 """
 
-from typing import List, Union
+from typing import Any, Dict, List, Union
 
 import numpy as np
 import scipy.stats as stats
@@ -11,7 +11,7 @@ def lg_prior_porb(
     porb: Union[float, List[float]],
     porb_fixed: float,
     distribution: str = "",
-    **kwargs,
+    **kwargs: float,
 ) -> Union[float, List[float]]:
     """Prior distribution on orbital period (Porb) in logarithm
 
@@ -43,8 +43,8 @@ def lg_prior_porb(
         raise e
 
     # needed values
-    loc = kwargs.get("loc")
-    scale = kwargs.get("scale")
+    loc: float = kwargs.get("loc")  # type: ignore
+    scale: float = kwargs.get("scale")  # type: ignore
     # in case uniform, range is [PORB - PORB_ERR , PORB + PORB_ERR]
     if distribution == "uniform":
         loc = kwargs["loc"] - kwargs["scale"]
@@ -62,7 +62,7 @@ def lg_prior_ecc(
     ecc: Union[float, List[float]],
     ecc_fixed: float,
     distribution: str = "",
-    **kwargs,
+    **kwargs: float,
 ) -> Union[float, List[float]]:
     """Prior distribution on eccentricity in logarithm"""
 
@@ -73,8 +73,8 @@ def lg_prior_ecc(
         raise e
 
     # needed values
-    loc = kwargs.get("loc")
-    scale = kwargs.get("scale")
+    loc: float = kwargs.get("loc")  # type: ignore
+    scale: float = kwargs.get("scale")  # type: ignore
     # in case uniform, range is [ECC - ECC_ERR , ECC + ECC_ERR]
     if distribution == "uniform":
         loc = kwargs["loc"] - kwargs["scale"]
@@ -83,16 +83,14 @@ def lg_prior_ecc(
     if loc < 0:
         loc = 0
 
-    return distro.logpdf(ecc, loc=loc, scale=scale) - distro.logpdf(
-        ecc_fixed, loc=loc, scale=scale
-    )
+    return distro.logpdf(ecc, loc=loc, scale=scale) - distro.logpdf(ecc_fixed, loc=loc, scale=scale)
 
 
 def lg_prior_m2(
     m2: Union[float, List[float]],
     m2_fixed: float,
     distribution: str = "",
-    **kwargs,
+    **kwargs: float,
 ) -> Union[float, List[float]]:
     """Prior distribution on companion, non-degenerate, star (M2) in logarithm"""
 
@@ -103,8 +101,8 @@ def lg_prior_m2(
         raise e
 
     # needed values
-    loc = kwargs.get("loc")
-    scale = kwargs.get("scale")
+    loc: float = kwargs.get("loc")  # type: ignore
+    scale: float = kwargs.get("scale")  # type: ignore
     # in case uniform, range is [M_2 - M_2_ERR , M_2 + M_2_ERR]
     if distribution == "uniform":
         loc = kwargs["loc"] - kwargs["scale"]
@@ -113,16 +111,14 @@ def lg_prior_m2(
     if loc < 0:
         loc = 0
 
-    return distro.logpdf(m2, loc=loc, scale=scale) - distro.logpdf(
-        m2_fixed, loc=loc, scale=scale
-    )
+    return distro.logpdf(m2, loc=loc, scale=scale) - distro.logpdf(m2_fixed, loc=loc, scale=scale)
 
 
 def lg_prior_mbh(
     mbh: Union[float, List[float]],
     mbh_fixed: float,
     distribution: str = "",
-    **kwargs,
+    **kwargs: float,
 ) -> Union[float, List[float]]:
     """Prior distribution on black hole (MBH) in logarithm"""
 
@@ -133,8 +129,8 @@ def lg_prior_mbh(
         raise e
 
     # needed values
-    loc = kwargs.get("loc")
-    scale = kwargs.get("scale")
+    loc: float = kwargs.get("loc")  # type: ignore
+    scale: float = kwargs.get("scale")  # type: ignore
     # in case uniform, range is [M_BH - M_BH_ERR , M_BH + M_BH_ERR]
     if distribution == "uniform":
         loc = kwargs["loc"] - kwargs["scale"]
@@ -143,16 +139,14 @@ def lg_prior_mbh(
     if loc < 0:
         loc = 0
 
-    return distro.logpdf(mbh, loc=loc, scale=scale) - distro.logpdf(
-        mbh_fixed, loc=loc, scale=scale
-    )
+    return distro.logpdf(mbh, loc=loc, scale=scale) - distro.logpdf(mbh_fixed, loc=loc, scale=scale)
 
 
 def lg_prior_inc(
     inc: Union[float, List[float]],
     inc_fixed: float,
     distribution: str = "",
-    **kwargs,
+    **kwargs: float,
 ) -> Union[float, List[float]]:
     """Prior distribution on inclination of binary orbit before and after asymmetric kick"""
 
@@ -163,8 +157,8 @@ def lg_prior_inc(
         raise e
 
     # needed values
-    loc = kwargs.get("loc")
-    scale = kwargs.get("scale")
+    loc: float = kwargs.get("loc")  # type: ignore
+    scale: float = kwargs.get("scale")  # type: ignore
     # in case uniform, range is [INC - INC_ERR , INC + INC_ERR]
     if distribution == "uniform":
         loc = kwargs["loc"] - kwargs["scale"]
@@ -173,16 +167,14 @@ def lg_prior_inc(
     if loc < 0:
         loc = 0
 
-    return distro.logpdf(inc, loc=loc, scale=scale) - distro.logpdf(
-        inc_fixed, loc=loc, scale=scale
-    )
+    return distro.logpdf(inc, loc=loc, scale=scale) - distro.logpdf(inc_fixed, loc=loc, scale=scale)
 
 
 def lg_prior_vsys(
     vsys: Union[float, List[float]],
     vsys_fixed: float,
     distribution: str = "",
-    **kwargs,
+    **kwargs: float,
 ) -> Union[float, List[float]]:
     """Uniform distribution prior on systemic velocity (v_sys) in logarithm"""
 
@@ -193,8 +185,8 @@ def lg_prior_vsys(
         raise e
 
     # needed values
-    loc = kwargs.get("loc")
-    scale = kwargs.get("scale")
+    loc: float = kwargs.get("loc")  # type: ignore
+    scale: float = kwargs.get("scale")  # type: ignore
     # in case uniform, range is [VSYS - VSYS_ERR , VSYS + VSYS_ERR]
     if distribution == "uniform":
         loc = kwargs["loc"] - kwargs["scale"]

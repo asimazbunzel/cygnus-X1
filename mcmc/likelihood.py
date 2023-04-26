@@ -3,20 +3,20 @@
 Compute log of likelihood while imposing conditions measured in Cygnus X-1
 """
 
+from typing import Any, Dict, List
+
 import logging
 import sys
-from typing import List
 
 import numpy as np
 import poskiorb
-
 import priors
 
 # logging stuff
 logger = logging.getLogger()
 
 
-def log_likelihood(args: List[float], **kwargs):
+def log_likelihood(args: List[float], **kwargs: float) -> float:
     """Compute logarithm of the likelihood
 
     Parameters
@@ -37,10 +37,8 @@ def log_likelihood(args: List[float], **kwargs):
     phi = args[5]
 
     # remove cases that are not physical
-    if m1_pre < kwargs["M_BH"]:
-        logger.debug(
-            f"found non physical case: m1_pre = {m1_pre:.2f} (< {kwargs['M_BH']:.2f})"
-        )
+    if m1_pre < float(kwargs["M_BH"]):
+        logger.debug(f"found non physical case: m1_pre = {m1_pre:.2f} (< {kwargs['M_BH']:.2f})")
         return -np.inf
     if w < 0e0:
         logger.debug(f"found non physical case: w = {w:.2e} (< 0)")
@@ -55,9 +53,7 @@ def log_likelihood(args: List[float], **kwargs):
         theta = np.pi - (theta % np.pi)
 
     if theta < 0 or theta >= np.pi or phi < 0 or phi >= 2 * np.pi:
-        logger.debug(
-            f"found angles larger than limits: theta = {theta:.2f}, phi = {phi:.2f}"
-        )
+        logger.debug(f"found angles larger than limits: theta = {theta:.2f}, phi = {phi:.2f}")
         return -np.inf
 
     # convert period to separation
@@ -101,44 +97,42 @@ def log_likelihood(args: List[float], **kwargs):
 
     # we dont want unbounded binaries
     if e < 0 or e >= 1 or a_post < 0:
-        logger.debug(
-            f"found non-surviving binary after kick: e = {e:.2e}, a_post = {a_post:.2e}"
-        )
+        logger.debug(f"found non-surviving binary after kick: e = {e:.2e}, a_post = {a_post:.2e}")
         return -np.inf
 
     # compute priors to update likelihood
-    log_L = priors.lg_prior_porb(
+    log_L: float = priors.lg_prior_porb(
         porb=p_post,
         porb_fixed=kwargs["PORB"],
-        distribution=kwargs["porb"],
+        distribution=kwargs["porb"],  # type: ignore
         loc=kwargs["PORB"],
         scale=kwargs["PORB_ERR"],
     )
-    log_L += priors.lg_prior_ecc(
+    log_L += priors.lg_prior_ecc(  # type: ignore
         ecc=e,
         ecc_fixed=kwargs["ECC"],
-        distribution=kwargs["e"],
+        distribution=kwargs["e"],  # type: ignore
         loc=kwargs["ECC"],
         scale=kwargs["ECC_ERR"],
     )
-    log_L += priors.lg_prior_m2(
+    log_L += priors.lg_prior_m2(  # type: ignore
         m2=m2,
         m2_fixed=kwargs["M_2"],
-        distribution=kwargs["m2"],
+        distribution=kwargs["m2"],  # type: ignore
         loc=kwargs["M_2"],
         scale=kwargs["M_2_ERR"],
     )
-    log_L += priors.lg_prior_vsys(
+    log_L += priors.lg_prior_vsys(  # type: ignore
         vsys=v_sys,
         vsys_fixed=kwargs["VSYS"],
-        distribution=kwargs["v_sys"],
+        distribution=kwargs["v_sys"],  # type: ignore
         loc=kwargs["VSYS"],
         scale=kwargs["VSYS_ERR"],
     )
-    log_L += priors.lg_prior_inc(
+    log_L += priors.lg_prior_inc(  # type: ignore
         inc=inc,
         inc_fixed=kwargs["INC"],
-        distribution=kwargs["i"],
+        distribution=kwargs["i"],  # type: ignore
         loc=kwargs["INC"],
         scale=kwargs["INC_ERR"],
     )

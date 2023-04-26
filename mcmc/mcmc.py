@@ -1,21 +1,21 @@
 """Markov Chain Montecarlo calculation of stellar parameters of Cygnus X-1"""
 
+from typing import Any, Union
+
 import logging
-from multiprocessing import Pool
-from pathlib import Path
 import os
 import pprint
 import sys
 import time
-from typing import Any, Union
 import warnings
+from multiprocessing import Pool
+from pathlib import Path
 
 import emcee
+import likelihood
 import numpy as np
 import poskiorb
 import yaml
-
-import likelihood
 
 # print options
 np.set_printoptions(precision=4)
@@ -45,9 +45,7 @@ def set_logger():
     ch.setLevel(logging.ERROR)
 
     # create formatter and add it to the handlers
-    formatter = logging.Formatter(
-        "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-    )
+    formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
     ch.setFormatter(formatter)
     fh.setFormatter(formatter)
 
@@ -113,29 +111,20 @@ def main() -> None:
 
     # add some randomness to initial values
     if use_rand_uniform:
-        randomness = [
-            np.array(
-                [
-                    np.random.uniform(-3, 6),
-                    np.random.uniform(-4, 15),
-                    np.random.uniform(-7, 7),
-                    np.random.uniform(-9, 50),
-                    np.random.uniform(-np.pi / 2, 3 * np.pi / 2),
-                    np.random.uniform(-np.pi / 2, np.pi / 2),
-                ]
-            )
-            for i in range(nwalkers)
-        ]
+        porb_rng = np.random.uniform(-3, 6, nwalkers)
+        m1_rng = np.random.uniform(-4, 15, nwalkers)
+        m2_rng = np.random.uniform(-7, 7, nwalkers)
+        w_rng = np.random.uniform(-9, 50, nwalkers)
+        theta_rng = np.random.uniform(-np.pi / 2, 3 * np.pi / 2, nwalkers)
+        phi_rng = np.random.uniform(-np.pi / 2, np.pi / 2, nwalkers)
+        randomness = np.column_stack((porb_rng, m1_rng, m2_rng, w_rng, theta_rng, phi_rng))
     else:
         logger.critical("`use_random_uniform_walkers` = False is not yet supported")
         sys.exit(1)
 
-    initial = []
-    for k, element in enumerate(randomness):
-        el = list(element)
-        initial.append(element + initial_values)
-
+    # initial walkers
     logging.debug("Initial walkers")
+    initial = initial_values + randomness
     for k, el in enumerate(initial):
         logging.debug(f"walker {k}: {el}")
 
