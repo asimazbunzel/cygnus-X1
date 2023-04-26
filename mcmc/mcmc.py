@@ -3,6 +3,7 @@
 import logging
 from multiprocessing import Pool
 from pathlib import Path
+import os
 import pprint
 import sys
 import time
@@ -22,25 +23,39 @@ np.set_printoptions(precision=4)
 # hide warnings
 warnings.filterwarnings("ignore")
 
-# logging stuff
-logger = logging.getLogger()
-logger.setLevel(logging.DEBUG)
-# create file handler that logs debug and higher level messages
-fh = logging.FileHandler(f"mcmc.log")
-fh.setLevel(logging.DEBUG)
-# create console handler with a higher log level
-ch = logging.StreamHandler()
-ch.setLevel(logging.ERROR)
-# create formatter and add it to the handlers
-formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
-ch.setFormatter(formatter)
-fh.setFormatter(formatter)
-# add the handlers to logger
-logger.addHandler(ch)
-logger.addHandler(fh)
-
-# filename with configuration
+# ===================================
+# filename with configuration options
 CONFIG_FILENAME = "config.yml"
+# ===================================
+
+
+# logging stuff
+def set_logger():
+    """Set logging stuff"""
+
+    logger = logging.getLogger()
+    logger.setLevel(logging.DEBUG)
+
+    # create file handler that logs debug and higher level messages
+    fh = logging.FileHandler(f"mcmc.log")
+    fh.setLevel(logging.DEBUG)
+
+    # create console handler with a higher log level
+    ch = logging.StreamHandler()
+    ch.setLevel(logging.ERROR)
+
+    # create formatter and add it to the handlers
+    formatter = logging.Formatter(
+        "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    )
+    ch.setFormatter(formatter)
+    fh.setFormatter(formatter)
+
+    # add the handlers to logger
+    logger.addHandler(ch)
+    logger.addHandler(fh)
+
+    return logger
 
 
 def load_yaml(fname: Union[str, Path]) -> Any:
@@ -76,9 +91,14 @@ def main() -> None:
     ndim = config["MCMC"].get("dimension")
     nburn = config["MCMC"].get("burn")
     nsteps = config["MCMC"].get("steps")
-    filename = config["IO"].get("filename")
+    use_rand_uniform = config["MCMC"].get("use_random_uniform_walkers")
+    progress = config["MCMC"].get("progress_bar")
+    priors = config["MCMC"].get("priorDistributions")
+    filename = config["MCMC"].get("filename")
 
-    # TODO: re-write to be used as a parameter from a YAML file
+    # Cygnus X-1 properties
+    cygnusX1 = config["CygnusX1"]
+
     # initial guess for parameter values
     # [p_pre   m1_pre    m2    w      theta     phi]
     initialGuess = config["MCMC"].get("initialGuess")
@@ -92,7 +112,6 @@ def main() -> None:
     ]
 
     # add some randomness to initial values
-    use_rand_uniform = config["MCMC"].get("use_random_uniform_walkers")
     if use_rand_uniform:
         randomness = [
             np.array(
@@ -123,18 +142,35 @@ def main() -> None:
     # need a numpy array to start emcee
     initial = np.array(initial)
 
+    # output handling (backend emcee)
+    try:
+        os.remove(filename)
+    except FileNotFoundError:
+        pass
     backend = emcee.backends.HDFBackend(filename)
     backend.reset(nwalkers, ndim)
+
+    # update kwargs dict with info regarding priors
+    kwargs = dict()
+    kwargs.update(cygnusX1)
+    kwargs.update(priors)
 
     print("starting Monte Carlo simulation")
     with Pool() as pool:
         sampler = emcee.EnsembleSampler(
-            nwalkers, ndim, likelihood.log_likelihood, pool=pool, backend=backend
+            nwalkers=nwalkers,
+            ndim=ndim,
+            log_prob_fn=likelihood.log_likelihood,
+            pool=pool,
+            backend=backend,
+            kwargs=kwargs,
         )
-        sampler.run_mcmc(initial, nsteps, progress=True)
+        sampler.run_mcmc(initial, nsteps, progress=progress)
 
 
 if __name__ == "__main__":
+    logger = set_logger()
+
     logger.info("********************************************************")
     logger.info("         Markov Chain Monte Carlo calculator            ")
     logger.info("********************************************************")
