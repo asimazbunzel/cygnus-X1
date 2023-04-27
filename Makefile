@@ -6,6 +6,10 @@ environment:
 run:
 	python mcmc/mcmc.py
 
+.PHONY: plots
+plots:
+	python plotter/plot.py
+
 # -----------------------------------------------------------------------
 #  stuff for development
 # -----------------------------------------------------------------------
