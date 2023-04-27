@@ -101,50 +101,64 @@ def log_likelihood(args: List[float], **kwargs: float) -> float:
         return -np.inf
 
     # compute priors to update likelihood
-    log_L: float = priors.lg_prior_porb(
-        porb=p_post,
-        porb_fixed=kwargs["PORB"],
-        distribution=kwargs["porb"],  # type: ignore
-        loc=kwargs["PORB"],
-        scale=kwargs["PORB_ERR"],
-    )
-    log_L += priors.lg_prior_ecc(  # type: ignore
-        ecc=e,
-        ecc_fixed=kwargs["ECC"],
-        distribution=kwargs["e"],  # type: ignore
-        loc=kwargs["ECC"],
-        scale=kwargs["ECC_ERR"],
-    )
-    log_L += priors.lg_prior_m2(  # type: ignore
-        m2=m2,
-        m2_fixed=kwargs["M_2"],
-        distribution=kwargs["m2"],  # type: ignore
-        loc=kwargs["M_2"],
-        scale=kwargs["M_2_ERR"],
-    )
-    log_L += priors.lg_prior_vsys(  # type: ignore
-        vsys=v_sys,
-        vsys_fixed=kwargs["VSYS"],
-        distribution=kwargs["v_sys"],  # type: ignore
-        loc=kwargs["VSYS"],
-        scale=kwargs["VSYS_ERR"],
-    )
-    log_L += priors.lg_prior_inc(  # type: ignore
-        inc=inc,
-        inc_fixed=kwargs["INC"],
-        distribution=kwargs["i"],  # type: ignore
-        loc=kwargs["INC"],
-        scale=kwargs["INC_ERR"],
-    )
+    try:
+        log_L: float = priors.lg_prior_porb(
+            porb=p_post,
+            porb_fixed=kwargs["PORB"],
+            distribution=kwargs["porb"],  # type: ignore
+            loc=kwargs["PORB"],
+            scale=kwargs["PORB_ERR"],
+        )
+        log_L += priors.lg_prior_ecc(  # type: ignore
+            ecc=e,
+            ecc_fixed=kwargs["ECC"],
+            distribution=kwargs["e"],  # type: ignore
+            loc=kwargs["ECC"],
+            scale=kwargs["ECC_ERR"],
+        )
+        log_L += priors.lg_prior_m2(  # type: ignore
+            m2=m2,
+            m2_fixed=kwargs["M_2"],
+            distribution=kwargs["m2"],  # type: ignore
+            loc=kwargs["M_2"],
+            scale=kwargs["M_2_ERR"],
+        )
+        log_L += priors.lg_prior_vsys(  # type: ignore
+            vsys=v_sys,
+            vsys_fixed=kwargs["VSYS"],
+            distribution=kwargs["v_sys"],  # type: ignore
+            loc=kwargs["VSYS"],
+            scale=kwargs["VSYS_ERR"],
+        )
+        log_L += priors.lg_prior_inc(  # type: ignore
+            inc=inc,
+            inc_fixed=kwargs["INC"],
+            distribution=kwargs["i"],  # type: ignore
+            loc=kwargs["INC"],
+            scale=kwargs["INC_ERR"],
+        )
+
+    except TypeError:
+        logger.critical(
+            "to use more complicated `scipy.stats` distributions, need to modify "
+            "`priors.py` to adapt it for such cases"
+        )
+        raise TypeError(
+            "`scipy.stats` distribution need more complex prior. edit `priors.py` " "and try again"
+        )
+
+    except Exception as exc:
+        logger.error(f"could not compute log_L: {str(exc)}")
+        log_L = -np.inf
 
     # prior on theta
     log_L += np.log(np.sin(theta))
 
     # debugging stuff
-    if log_L != -np.inf:
+    if log_L != -np.inf and np.abs(log_L) < 0.01:
         logger.debug(
             f"P = {p_post:.2e}, e = {e:.2f}, i = {inc:.2e}, v_sys = {v_sys:.2e}, "
-            f"w = {w:.2e}, theta = {theta:.2f}, phi = {phi:.2f}: \t log_L = {log_L:.2f}"
+            f"w = {w:.2e}, theta = {theta:.2f}, phi = {phi:.2f} => log_L = {log_L:.2f}"
         )
 
     return log_L

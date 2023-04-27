@@ -53,9 +53,15 @@ def lg_prior_porb(
     if loc < 0:
         loc = 0
 
-    return distro.logpdf(porb, loc=loc, scale=scale) - distro.logpdf(
-        porb_fixed, loc=loc, scale=scale
-    )
+    try:
+        logpdf = distro.logpdf(porb, loc=loc, scale=scale) - distro.logpdf(
+            porb_fixed, loc=loc, scale=scale
+        )
+
+    except Exception as e:
+        raise e
+
+    return logpdf
 
 
 def lg_prior_ecc(
@@ -83,7 +89,15 @@ def lg_prior_ecc(
     if loc < 0:
         loc = 0
 
-    return distro.logpdf(ecc, loc=loc, scale=scale) - distro.logpdf(ecc_fixed, loc=loc, scale=scale)
+    try:
+        logpdf = distro.logpdf(ecc, loc=loc, scale=scale) - distro.logpdf(
+            ecc_fixed, loc=loc, scale=scale
+        )
+
+    except Exception as e:
+        raise e
+
+    return logpdf
 
 
 def lg_prior_m2(
@@ -111,7 +125,15 @@ def lg_prior_m2(
     if loc < 0:
         loc = 0
 
-    return distro.logpdf(m2, loc=loc, scale=scale) - distro.logpdf(m2_fixed, loc=loc, scale=scale)
+    try:
+        logpdf = distro.logpdf(m2, loc=loc, scale=scale) - distro.logpdf(
+            m2_fixed, loc=loc, scale=scale
+        )
+
+    except Exception as e:
+        raise e
+
+    return logpdf
 
 
 def lg_prior_mbh(
@@ -139,7 +161,15 @@ def lg_prior_mbh(
     if loc < 0:
         loc = 0
 
-    return distro.logpdf(mbh, loc=loc, scale=scale) - distro.logpdf(mbh_fixed, loc=loc, scale=scale)
+    try:
+        logpdf = distro.logpdf(mbh, loc=loc, scale=scale) - distro.logpdf(
+            mbh_fixed, loc=loc, scale=scale
+        )
+
+    except Exception as e:
+        raise e
+
+    return logpdf
 
 
 def lg_prior_inc(
@@ -167,7 +197,15 @@ def lg_prior_inc(
     if loc < 0:
         loc = 0
 
-    return distro.logpdf(inc, loc=loc, scale=scale) - distro.logpdf(inc_fixed, loc=loc, scale=scale)
+    try:
+        logpdf = distro.logpdf(inc, loc=loc, scale=scale) - distro.logpdf(
+            inc_fixed, loc=loc, scale=scale
+        )
+
+    except Exception as e:
+        raise e
+
+    return logpdf
 
 
 def lg_prior_vsys(
@@ -195,6 +233,12 @@ def lg_prior_vsys(
     if loc < 0:
         loc = 0
 
-    return distro.logpdf(vsys, loc=loc, scale=scale) - distro.logpdf(
-        vsys_fixed, loc=loc, scale=scale
-    )
+    try:
+        logpdf = distro.logpdf(vsys, loc=loc, scale=scale) - distro.logpdf(
+            vsys_fixed, loc=loc, scale=scale
+        )
+
+    except Exception as e:
+        raise e
+
+    return logpdf

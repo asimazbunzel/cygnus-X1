@@ -45,7 +45,9 @@ def set_logger():
     ch.setLevel(logging.ERROR)
 
     # create formatter and add it to the handlers
-    formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+    formatter = logging.Formatter(
+        "%(asctime)s -- %(levelname)s -- %(message)s (%(funcName)s in %(filename)s:%(lineno)s)"
+    )
     ch.setFormatter(formatter)
     fh.setFormatter(formatter)
 
@@ -95,7 +97,7 @@ def main() -> None:
     filename = config["MCMC"].get("filename")
 
     # Cygnus X-1 properties
-    cygnusX1 = config["CygnusX1"]
+    stellarParameters = config["StellarParameters"]
 
     # initial guess for parameter values
     # [p_pre   m1_pre    m2    w      theta     phi]
@@ -141,7 +143,7 @@ def main() -> None:
 
     # update kwargs dict with info regarding priors
     kwargs = dict()
-    kwargs.update(cygnusX1)
+    kwargs.update(stellarParameters)
     kwargs.update(priors)
 
     print("starting Monte Carlo simulation")
@@ -155,34 +157,12 @@ def main() -> None:
             kwargs=kwargs,
         )
 
-        # sampler.run_mcmc(initial, nsteps, progress=progress)
+        # run MCMC
+        try:
+            sampler.run_mcmc(initial, nsteps, progress=progress)
 
-        # We'll track how the average autocorrelation time estimate changes
-        index = 0
-        autocorr = np.empty(nsteps)
-
-        # This will be useful to testing convergence
-        old_tau = np.inf
-
-        # Now we'll sample for up to max_n steps
-        for sample in sampler.sample(initial, iterations=nsteps, progress=progress):
-            # Only check convergence every 100 steps
-            if sampler.iteration % 100:
-                continue
-
-            # Compute the autocorrelation time so far
-            # Using tol=0 means that we'll always get an estimate even
-            # if it isn't trustworthy
-            tau = sampler.get_autocorr_time(tol=0)
-            autocorr[index] = np.mean(tau)
-            index += 1
-
-            # Check convergence
-            converged = np.all(tau * 100 < sampler.iteration)
-            converged &= np.all(np.abs(old_tau - tau) / tau < 0.01)
-            if converged:
-                break
-            old_tau = tau
+        except Exception:
+            sys.exit(1)
 
 
 if __name__ == "__main__":
