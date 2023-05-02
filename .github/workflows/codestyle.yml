@@ -27,19 +27,16 @@ jobs:
         python -m pip install --upgrade pip
         python -m pip install black==23.3.0 flake8==6.0.0 isort==5.12.0 mypy==1.2.0 pyupgrade==3.3.2
 
-        python -m pip install .
     - name: flake8 lint
       run: |
-        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
-        flake8 . --count --exit-zero --max-complexity=12 --max-line-length=127 --statistics
+        flake8 **/*.py --count --select=E9,F63,F7,F82 --show-source --statistics
+        flake8 **/*.py --count --exit-zero --max-complexity=12 --max-line-length=127 --statistics
     - name: black lint
       run: |
-        black --check mcmc
-
+        black --check **/*.py
     - name: pyupgrade lint
       run: |
         pyupgrade --exit-zero-even-if-changed --py37-plus **/*.py
-
     - name: isort lint
       run: |
-        isort ./
+        isort **/*.py
