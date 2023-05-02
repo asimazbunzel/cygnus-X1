@@ -3,10 +3,9 @@
 Compute log of likelihood while imposing conditions measured in Cygnus X-1
 """
 
-from typing import Any, Dict, List
+from typing import List
 
 import logging
-import sys
 
 import numpy as np
 import poskiorb

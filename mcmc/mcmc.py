@@ -4,7 +4,6 @@ from typing import Any, Union
 
 import logging
 import os
-import pprint
 import sys
 import time
 import warnings
@@ -14,7 +13,6 @@ from pathlib import Path
 import emcee
 import likelihood
 import numpy as np
-import poskiorb
 import yaml
 
 # print options
@@ -37,7 +35,7 @@ def set_logger():
     logger.setLevel(logging.DEBUG)
 
     # create file handler that logs debug and higher level messages
-    fh = logging.FileHandler(f"mcmc.log")
+    fh = logging.FileHandler("mcmc.log")
     fh.setLevel(logging.DEBUG)
 
     # create console handler with a higher log level
@@ -89,7 +87,6 @@ def main() -> None:
     # set some constant values
     nwalkers = config["MCMC"].get("walkers")
     ndim = config["MCMC"].get("dimension")
-    nburn = config["MCMC"].get("burn")
     nsteps = config["MCMC"].get("steps")
     use_rand_uniform = config["MCMC"].get("use_random_uniform_walkers")
     progress = config["MCMC"].get("progress_bar")

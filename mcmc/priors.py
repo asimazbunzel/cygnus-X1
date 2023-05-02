@@ -1,9 +1,8 @@
 """Prior distributions for different stellar parameters
 """
 
-from typing import Any, Dict, List, Union
+from typing import List, Union
 
-import numpy as np
 import scipy.stats as stats
 
 
