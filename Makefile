@@ -15,7 +15,7 @@ plots:
 # -----------------------------------------------------------------------
 .PHONY: dev-install
 dev-install:
-	pip install -U black==23.3.0 isort==5.12.0 mypy==1.2.0 pyupgrade==3.3.2
+	pip install -U black==23.3.0 flake8==6.0.0 isort==5.12.0 mypy==1.2.0 pyupgrade==3.3.2
 
 codestyle:
 	pyupgrade --exit-zero-even-if-changed --py37-plus **/*.py
