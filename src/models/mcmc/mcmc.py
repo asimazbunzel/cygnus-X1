@@ -1,7 +1,9 @@
-"""Markov Chain Montecarlo calculation of stellar parameters of Cygnus X-1"""
+"""Markov Chain Montecarlo calculation of stellar parameters of Cygnus X-1
+"""
 
 from typing import Any, Union
 
+import argparse
 import logging
 import os
 import sys
@@ -21,37 +23,56 @@ np.set_printoptions(precision=4)
 # hide warnings
 warnings.filterwarnings("ignore")
 
-# ===================================
-# filename with configuration options
-CONFIG_FILENAME = "config.yml"
-# ===================================
+
+desc = """ Monte Carlo evaluation of stellar parameters of the HMXB Cygnus X-1, using Markov
+chain approach based on the `emcee` python module
+"""
+
+
+def parse_args() -> argparse.Namespace:
+    """Parse command line arguments"""
+
+    parser = argparse.ArgumentParser(
+        description=desc,
+        epilog="@asimazbunzel on GitHub",
+    )
+    parser.add_argument(
+        "-C",
+        "--config-file",
+        dest="config_file",
+        help="path to configuration file in YAML format",
+        type=str,
+    )
+    parser.add_argument(
+        "-d",
+        "--debug",
+        action="store_true",
+        default=False,
+        dest="debug",
+        help="enable debug mode",
+    )
+
+    return parser.parse_args()
 
 
 # logging stuff
-def set_logger():
+def set_logger(debug: bool = False):
     """Set logging stuff"""
 
-    logger = logging.getLogger()
-    logger.setLevel(logging.DEBUG)
+    # enable debug if requested
+    level = logging.INFO
+    if debug:
+        level = logging.DEBUG
 
-    # create file handler that logs debug and higher level messages
-    fh = logging.FileHandler("mcmc.log")
-    fh.setLevel(logging.DEBUG)
-
-    # create console handler with a higher log level
-    ch = logging.StreamHandler()
-    ch.setLevel(logging.ERROR)
-
-    # create formatter and add it to the handlers
-    formatter = logging.Formatter(
-        "%(asctime)s -- %(levelname)s -- %(message)s (%(funcName)s in %(filename)s:%(lineno)s)"
+    logging.basicConfig(
+        filename=".mcmc.log",
+        filemode="w",
+        format="%(asctime)s -- %(levelname)s -- %(message)s (%(funcName)s in %(filename)s:%(lineno)s)",
+        datefmt="%H:%M:%S",
+        level=level,
     )
-    ch.setFormatter(formatter)
-    fh.setFormatter(formatter)
 
-    # add the handlers to logger
-    logger.addHandler(ch)
-    logger.addHandler(fh)
+    logger = logging.getLogger("MCMC")
 
     return logger
 
@@ -76,13 +97,13 @@ def load_yaml(fname: Union[str, Path]) -> Any:
         return yaml.load(f, Loader=yaml.FullLoader)
 
 
-def main() -> None:
+def main(config_file: str = "") -> None:
     """Main driver of MCMC chain evaluation"""
 
     logger.info("setting Markov Chain Monte Carlo simulation")
 
     # load configuration
-    config = load_yaml(fname=CONFIG_FILENAME)
+    config = load_yaml(fname=config_file)
 
     # set some constant values
     nwalkers = config["MCMC"].get("walkers")
@@ -163,7 +184,9 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    logger = set_logger()
+    args = parse_args()
+
+    logger = set_logger(args.debug)
 
     logger.info("********************************************************")
     logger.info("         Markov Chain Monte Carlo calculator            ")
@@ -172,7 +195,7 @@ if __name__ == "__main__":
     # time it
     _startTime = time.time()
 
-    main()
+    main(config_file=args.config_file)
 
     # time it
     _endTime = time.time()

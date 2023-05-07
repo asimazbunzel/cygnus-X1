@@ -1,0 +1,69 @@
+# Configuration file for MCMC exploration of asymmetric kicks on Cygnus X-1
+# used by the `src/models/mcmc` module
+
+# Markov chain Montecarlo controls
+MCMC:
+
+  # walkers: number of walkers
+  walkers: 12
+
+  # dimension: dimension of the space to explore
+  dimension: 6
+
+  # steps: number of steps to perform by the MCMC
+  steps: 5000
+  
+  # burn: how many steps to burn from MCMC chain
+  burn: 100
+
+  # use_random_uniform_walkers: flag to control the initial population of walkers
+  use_random_uniform_walkers: True
+
+  # show progress bar
+  progress_bar: True
+  
+  # filename: name of file where results from MCMC will be saved
+  filename: "data/raw/mcmc-chain.h5"
+
+  # Initial parameter space around which random walkers will start
+  initialGuess:
+    # orbital period pre supernova in days
+    porb_preSN : 4.0
+    # collapsing star mass in Msun
+    m1_preSN   : 25.0
+    # non-degenerate companion star mass in Msun
+    m2         : 40.0
+    # asymmetric kick strength
+    w          : 10.0
+    # kick polar angle
+    theta      : 1.5707963267948966  # pi / 2
+    # kick azimuthal angle
+    phi        : 1.5707963267948966  # pi / 2
+
+  # priors to use for different stellar parameters
+  priorDistributions:
+    # orbital period
+    porb : "norm"
+    # eccentricity
+    e    : "uniform"
+    # non-degenerate companion star
+    m2   : "norm"
+    # systemic velocity
+    v_sys: "norm"
+    # inclination
+    i    : "uniform"
+
+# Stellar parameters of Cygnus X-1
+StellarParameters:
+  M_BH    : 20.0   # Msun
+  M_BH_ERR:  2.0   # Msun
+  M_2     : 40.0   # Msun
+  M_2_ERR :  7.0   # Msun
+  PORB    :  5.6   # days
+  PORB_ERR:  1.0   # days
+  VSYS    : 10.7   # km s-1
+  VSYS_ERR: 15.0   # km s-1 (actual error : 2.7)
+  ECC     :  0.019
+  ECC_ERR :  0.1   # (actual error too small: 0.003)
+  INC     : 25.0   # deg
+  INC_ERR :  8.5   # deg
