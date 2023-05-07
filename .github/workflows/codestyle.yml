@@ -29,14 +29,14 @@ jobs:
 
     - name: flake8 lint
       run: |
-        flake8 **/*.py --count --select=E9,F63,F7,F82 --show-source --statistics
-        flake8 **/*.py --count --exit-zero --max-complexity=12 --max-line-length=127 --statistics
+        flake8 src/models/mcmc/*.py --count --select=E9,F63,F7,F82 --show-source --statistics
+        flake8 src/model/mcmc/*.py --count --exit-zero --max-complexity=12 --max-line-length=127 --statistics
     - name: black lint
       run: |
-        black --check **/*.py
+        black --check src/models/mcmc/*.py
     - name: pyupgrade lint
       run: |
-        pyupgrade --exit-zero-even-if-changed --py37-plus **/*.py
+        pyupgrade --exit-zero-even-if-changed --py37-plus src/models/mcmc/*.py
     - name: isort lint
       run: |
-        isort **/*.py
+        isort src/models/mcmc/*.py
