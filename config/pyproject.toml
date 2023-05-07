@@ -1,4 +1,3 @@
-
 [tool.black]
 # https://github.com/psf/black
 target-version = ["py37"]
