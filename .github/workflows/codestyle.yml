@@ -33,7 +33,7 @@ jobs:
         flake8 src/model/mcmc/*.py --count --exit-zero --max-complexity=12 --max-line-length=127 --statistics
     - name: black lint
       run: |
-        black --check src/models/mcmc/*.py
+        black --check --line-length 100 src/models/mcmc/*.py
     - name: pyupgrade lint
       run: |
         pyupgrade --exit-zero-even-if-changed --py37-plus src/models/mcmc/*.py
