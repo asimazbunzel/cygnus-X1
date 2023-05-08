@@ -25,6 +25,12 @@ MCMC:
   # filename: name of file where results from MCMC will be saved
   filename: "data/raw/mcmc-chain.h5"
 
+  # once the MCMC has finished, the script `clean_chain` in `src/features` will
+  # burn some steps and randomly choose values from the remaining chain to make
+  # plots. this new chain of pre-cc values, together with the post-cc values and
+  # the log of the likelihood will be stored here:
+  processed_filename: "data/processed/mcmc-chain.h5"
+
   # Initial parameter space around which random walkers will start
   initialGuess:
     # orbital period pre supernova in days
