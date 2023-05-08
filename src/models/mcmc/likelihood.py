@@ -80,17 +80,6 @@ def log_likelihood(args: List[float], **kwargs: float) -> float:
         ids=np.ones(1),
     )
 
-    if len(a_post) <= 0:
-        logger.debug("found non-surviving binary after kick")
-        return -np.inf
-
-    # convert arrays of 1 element to floats
-    a_post = a_post[0]
-    p_post = p_post[0]
-    e = e[0]
-    cos_i = cos_i[0]
-    v_sys = v_sys[0]
-
     # inclination to deg.
     inc = np.rad2deg(np.arccos(cos_i))
 
