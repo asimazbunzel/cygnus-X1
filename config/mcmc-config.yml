@@ -29,7 +29,7 @@ MCMC:
   # burn some steps and randomly choose values from the remaining chain to make
   # plots. this new chain of pre-cc values, together with the post-cc values and
   # the log of the likelihood will be stored here:
-  processed_filename: "data/processed/mcmc-chain.h5"
+  processed_filename: "data/processed/mcmc_corrected_angles.h5"
 
   # Initial parameter space around which random walkers will start
   initialGuess:
