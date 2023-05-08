@@ -7,15 +7,25 @@ environment:
 	@echo "creating environment for $(PROJECT_NAME), located in $(PROJECT_DIR)"
 	conda env create -f config/environment.yml
 
-# rule to run MCMC chain
-.PHONY: mcmc-chain
+# rules to run MCMC code & helpers
+.PHONY: mcmc-chain, mcmc-help, process-data
 mcmc-chain:
 	python src/models/mcmc/mcmc.py --config-file $(PROJECT_DIR)/config/mcmc-config.yml
+
+mcmc-help:
+	python src/models/mcmc/mcmc.py --help
+
+process-data:
+	python src/features/clean_chain.py --config-file $(PROJECT_DIR)/config/mcmc-config.yml
 
 ## delete all compiled python files
 clean:
 	find . -type f -name "*.py[co]" -delete
 	find . -type d -name "__pycache__" -delete
+
+# install jupyter to open jupyter notebook
+install-jupyter:
+	conda install -c conda-forge jupyter
 
 # development stuff
 .PHONY: dev
