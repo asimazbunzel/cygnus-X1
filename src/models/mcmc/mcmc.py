@@ -194,11 +194,7 @@ def main(config_file: str = "") -> None:
         )
 
         # run MCMC
-        try:
-            sampler.run_mcmc(initial, nsteps, progress=progress)
-
-        except Exception:
-            sys.exit(1)
+        sampler.run_mcmc(initial, nsteps, progress=progress)
 
 
 if __name__ == "__main__":
