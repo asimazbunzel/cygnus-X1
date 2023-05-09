@@ -5,16 +5,16 @@
 MCMC:
 
   # walkers: number of walkers
-  walkers: 12
+  walkers: 36
 
   # dimension: dimension of the space to explore
   dimension: 6
 
   # steps: number of steps to perform by the MCMC
-  steps: 5000
+  steps: 200000
   
   # burn: how many steps to burn from MCMC chain
-  burn: 100
+  burn: 100000
 
   # use_random_uniform_walkers: flag to control the initial population of walkers
   use_random_uniform_walkers: True
@@ -23,7 +23,7 @@ MCMC:
   progress_bar: True
   
   # filename: name of file where results from MCMC will be saved
-  filename: "data/raw/mcmc-chain.h5"
+  filename: "data/raw/mcmc_larger_priors.h5"
 
   # once the MCMC has finished, the script `clean_chain` in `src/features` will
   # burn some steps and randomly choose values from the remaining chain to make
@@ -34,17 +34,29 @@ MCMC:
   # Initial parameter space around which random walkers will start
   initialGuess:
     # orbital period pre supernova in days
-    porb_preSN : 4.0
+    porb_preSN   :   4.0
+    porb_preSN_lo:   1.0
+    porb_preSN_hi: 100.0
     # collapsing star mass in Msun
-    m1_preSN   : 25.0
+    m1_preSN     :  25.0
+    m1_preSN_lo  :  20.0
+    m1_preSN_hi  :  50.0
     # non-degenerate companion star mass in Msun
-    m2         : 40.0
+    m2           :  40.0
+    m2_lo        :  30.0
+    m2_hi        :  50.0
     # asymmetric kick strength
-    w          : 10.0
+    w            :  10.0
+    w_lo         :   0.1
+    w_hi         :  10.0
     # kick polar angle
-    theta      : 1.5707963267948966  # pi / 2
+    theta        :   1.5707963267948966  # pi / 2
+    theta_lo     :   0.0
+    theta_hi     :   6.283185307179586
     # kick azimuthal angle
-    phi        : 1.5707963267948966  # pi / 2
+    phi          :   1.5707963267948966  # pi / 2
+    phi_lo       :   0.0
+    phi_hi       :   3.141592653589793
 
   # priors to use for different stellar parameters
   priorDistributions:

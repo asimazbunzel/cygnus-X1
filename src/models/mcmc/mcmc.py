@@ -131,12 +131,30 @@ def main(config_file: str = "") -> None:
 
     # add some randomness to initial values
     if use_rand_uniform:
-        porb_rng = np.random.uniform(-3, 6, nwalkers)
-        m1_rng = np.random.uniform(-4, 15, nwalkers)
-        m2_rng = np.random.uniform(-7, 7, nwalkers)
-        w_rng = np.random.uniform(-9, 50, nwalkers)
-        theta_rng = np.random.uniform(-np.pi / 2, 3 * np.pi / 2, nwalkers)
-        phi_rng = np.random.uniform(-np.pi / 2, np.pi / 2, nwalkers)
+        rng_lo = initialGuess.get("porb_preSN_lo") - initial_values[0]
+        rng_hi = initialGuess.get("porb_preSN_hi") - initial_values[0]
+        porb_rng = np.random.uniform(rng_lo, rng_hi, nwalkers)
+
+        rng_lo = initialGuess.get("m1_preSN_lo") - initial_values[1]
+        rng_hi = initialGuess.get("m1_preSN_hi") - initial_values[1]
+        m1_rng = np.random.uniform(rng_lo, rng_hi, nwalkers)
+
+        rng_lo = initialGuess.get("m2_lo") - initial_values[2]
+        rng_hi = initialGuess.get("m2_hi") - initial_values[2]
+        m2_rng = np.random.uniform(rng_lo, rng_hi, nwalkers)
+
+        rng_lo = initialGuess.get("w_lo") - initial_values[3]
+        rng_hi = initialGuess.get("w_hi") - initial_values[3]
+        w_rng = np.random.uniform(rng_lo, rng_hi, nwalkers)
+
+        rng_lo = initialGuess.get("theta_lo") - initial_values[4]
+        rng_hi = initialGuess.get("theta_hi") - initial_values[4]
+        theta_rng = np.random.uniform(rng_lo, rng_hi, nwalkers)
+
+        rng_lo = initialGuess.get("phi_lo") - initial_values[5]
+        rng_hi = initialGuess.get("phi_hi") - initial_values[5]
+        phi_rng = np.random.uniform(rng_lo, rng_hi, nwalkers)
+
         randomness = np.column_stack((porb_rng, m1_rng, m2_rng, w_rng, theta_rng, phi_rng))
     else:
         logger.critical("`use_random_uniform_walkers` = False is not yet supported")
