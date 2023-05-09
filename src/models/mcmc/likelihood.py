@@ -35,38 +35,45 @@ def log_likelihood(args: List[float], **kwargs: float) -> float:
     theta = args[4]
     phi = args[5]
 
+    # check angles
+    phi = phi % (2 * np.pi)
+    theta = theta % (2 * np.pi)
+    if theta < 0 or theta > np.pi:
+        theta = np.pi - (theta % np.pi)
+    
+    # this is for debugging purposes
+    binary_str = f"m1 = {m1_pre:.2f}, m2 = {m2:.2f}, p = {porb_pre:.2e} :: "
+    binary_str += f"ω = {w:.2e}, θ = {np.rad2deg(theta):.2e}, φ = {np.rad2deg(phi):.2e}"
+
     # remove cases that are not physical
     if m1_pre < float(kwargs["M_BH"]):
-        logger.debug(f"found non physical case: m1_pre = {m1_pre:.2f} (< {kwargs['M_BH']:.2f})")
+        logger.debug(f"{binary_str} :: non physical case (m1 < {kwargs['M_BH']:.2f})")
         return -np.inf
     if w < 0e0:
-        logger.debug(f"found non physical case: w = {w:.2e} (< 0)")
+        logger.debug(f"{binary_str} :: non physical case (ω < 0)")
         return -np.inf
     if porb_pre < 0e0:
-        logger.debug(f"found non physical case: porb_pre = {porb_pre:.2e} (< 0)")
+        logger.debug(f"{binary_str} :: non physical case: (p < 0)")
+        return -np.inf
+    if theta < 0 or theta >= np.pi or phi < 0 or phi >= 2 * np.pi:
+        logger.debug(f"{binary_str} :: angles outside limits: (θ = {theta:.2f}, φ = {phi:.2f})")
         return -np.inf
 
     # remove unlikely scenarios
     if porb_pre > 1e3:
-        logger.debug(f"found unlikely scenario: porb_pre = {porb_pre:.2} (> 1000)")
+        logger.debug(f"{binary_str} :: unlikely scenario: (p > 1000)")
         return -np.inf
-    if w > 500e0:
-        logger.debug(f"found unlikely scenario: w = {w:.2e} (> 500)")
+    if w > 600e0:
+        logger.debug(f"{binary_str} :: unlikely scenario: (w > 500)")
         return -np.inf
     if m2 < (kwargs["M_2"] - kwargs["M_2_ERR"]) or m2 > (kwargs["M_2"] + kwargs["M_2_ERR"]):
-        logger.debug(f"found unlikely scenario: m2 = {m2:.2e} outside observed C.I.")
+        logger.debug(
+            f"{binary_str} :: unlikely scenario: "
+            f"(m2 < {kwargs['M_2'] - kwargs['M_2_ERR']} | m2 > {kwargs['M_2'] + kwargs['M_2_ERR']})"
+        )
         return -np.inf
 
-    # check angles
-    phi = phi % (2 * np.pi)
-    if theta < 0 or theta > np.pi:
-        theta = np.pi - (theta % np.pi)
-
-    if theta < 0 or theta >= np.pi or phi < 0 or phi >= 2 * np.pi:
-        logger.debug(f"found angles larger than limits: theta = {theta:.2f}, phi = {phi:.2f}")
-        return -np.inf
-
-    # convert period to separation
+    # convert period to separation, needed for the `binary_orbits_after_kick`
     a_pre = poskiorb.utils.P_to_a(period=porb_pre, m1=m1_pre, m2=m2)
 
     # evaluate kicks model
@@ -90,25 +97,21 @@ def log_likelihood(args: List[float], **kwargs: float) -> float:
         phi=phi,
         ids=np.ones(1),
     )
-
-    if v_sys > 60e0:
-        logger.debug(f"found binary not matching observations: v_sys = {v_sys:.2e} (>> {kwargs['VSYS']:.2e})")
+    
+    # we dont want unbounded binaries
+    if not np.isfinite(e):        
+        logger.debug(f"{binary_str} :: unbounded after kick")
         return -np.inf
 
     # inclination to deg.
     inc = np.rad2deg(np.arccos(cos_i))
-
-    # we dont want unbounded binaries
-    if e < 0 or e >= 1 or a_post < 0:
-        logger.debug(f"found non-surviving binary after kick: e = {e:.2e}, a_post = {a_post:.2e}")
-        return -np.inf
 
     # compute priors to update likelihood
     try:
         log_L: float = priors.lg_prior_porb(
             porb=p_post,
             porb_fixed=kwargs["PORB"],
-            distribution=kwargs["porb"],  # type: ignore
+            distribution=kwargs["p_orb"],  # type: ignore
             loc=kwargs["PORB"],
             scale=kwargs["PORB_ERR"],
         )
@@ -146,22 +149,21 @@ def log_likelihood(args: List[float], **kwargs: float) -> float:
             "to use more complicated `scipy.stats` distributions, need to modify "
             "`priors.py` to adapt it for such cases"
         )
-        raise TypeError(
-            "`scipy.stats` distribution need more complex prior. edit `priors.py` " "and try again"
-        )
+        sys.exit()
 
     except Exception as exc:
-        logger.error(f"could not compute log_L: {str(exc)}")
-        log_L = -np.inf
+        logger.critical(f"could not compute log_L: {str(exc)}")
+        sys.exit()
 
-    # prior on theta
+    # prior on theta, phi => isotropic distribution pdf = 0.5 * sin(θ)
     log_L += np.log(np.sin(theta))
 
     # debugging stuff
-    if log_L != -np.inf and np.abs(log_L) < 6:
+    if log_L != -np.inf:
         logger.debug(
-            f"P = {p_post:.2e}, e = {e:.2f}, i = {inc:.2e}, v_sys = {v_sys:.2e}, "
-            f"w = {w:.2e}, theta = {theta:.2f}, phi = {phi:.2f} => log_L = {log_L:.2f}"
+            f"{binary_str} :: "
+            f"P = {p_post:.2e}, e = {e:.2f}, i = {inc:.2e}, v_sys = {v_sys:.2e} => "
+            f"log_L = {log_L:.2f}"
         )
 
     return log_L
