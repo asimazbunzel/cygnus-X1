@@ -46,6 +46,17 @@ def log_likelihood(args: List[float], **kwargs: float) -> float:
         logger.debug(f"found non physical case: porb_pre = {porb_pre:.2e} (< 0)")
         return -np.inf
 
+    # remove unlikely scenarios
+    if porb_pre > 1e3:
+        logger.debug(f"found unlikely scenario: porb_pre = {porb_pre:.2} (> 1000)")
+        return -np.inf
+    if w > 500e0:
+        logger.debug(f"found unlikely scenario: w = {w:.2e} (> 500)")
+        return -np.inf
+    if m2 < (kwargs["M_2"] - kwargs["M_2_ERR"]) or m2 > (kwargs["M_2"] + kwargs["M_2_ERR"]):
+        logger.debug(f"found unlikely scenario: m2 = {m2:.2e} outside observed C.I.")
+        return -np.inf
+
     # check angles
     phi = phi % (2 * np.pi)
     if theta < 0 or theta > np.pi:
@@ -79,6 +90,10 @@ def log_likelihood(args: List[float], **kwargs: float) -> float:
         phi=phi,
         ids=np.ones(1),
     )
+
+    if v_sys > 60e0:
+        logger.debug(f"found binary not matching observations: v_sys = {v_sys:.2e} (>> {kwargs['VSYS']:.2e})")
+        return -np.inf
 
     # inclination to deg.
     inc = np.rad2deg(np.arccos(cos_i))
@@ -143,7 +158,7 @@ def log_likelihood(args: List[float], **kwargs: float) -> float:
     log_L += np.log(np.sin(theta))
 
     # debugging stuff
-    if log_L != -np.inf and np.abs(log_L) < 0.01:
+    if log_L != -np.inf and np.abs(log_L) < 6:
         logger.debug(
             f"P = {p_post:.2e}, e = {e:.2f}, i = {inc:.2e}, v_sys = {v_sys:.2e}, "
             f"w = {w:.2e}, theta = {theta:.2f}, phi = {phi:.2f} => log_L = {log_L:.2f}"
