@@ -1,3 +1,6 @@
+# files inside data/raw are too heavy to add
+data/raw/*
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
