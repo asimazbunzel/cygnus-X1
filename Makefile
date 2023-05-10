@@ -8,7 +8,7 @@ environment:
 	conda env create -f config/environment.yml
 
 # rules to run MCMC code & helpers
-.PHONY: mcmc-chain, mcmc-help, process-data
+.PHONY: mcmc-chain mcmc-help process-data
 mcmc-chain:
 	python src/models/mcmc/mcmc.py --config-file $(PROJECT_DIR)/config/mcmc-config.yml
 
