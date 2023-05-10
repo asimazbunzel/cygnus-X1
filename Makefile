@@ -16,7 +16,7 @@ mcmc-help:
 	python src/models/mcmc/mcmc.py --help
 
 process-data:
-	python src/features/clean_chain.py --config-file $(PROJECT_DIR)/config/mcmc-config.yml
+	python src/data/make_dataset.py --config-file $(PROJECT_DIR)/config/mcmc-config.yml
 
 ## delete all compiled python files
 clean:
