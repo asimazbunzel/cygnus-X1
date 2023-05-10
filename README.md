@@ -28,11 +28,8 @@ Project Organization
     │
     ├── src                <- Source code for use in this project.
     │   │
-    │   ├── data           <- Scripts to download or generate data
+    │   ├── data           <- Scripts to download or generate data (turn raw data into processed)
     │   │   └── make_dataset.py
-    │   │
-    │   ├── features       <- Scripts to turn raw data into features for modeling
-    │   │   └── build_features.py
     │   │
     │   └─── models         <- Script to create models
     │        │
